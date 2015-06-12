@@ -3,4 +3,4 @@
 docker run -it --rm \
     -v "$PWD:/usr/src/app" \
     -v "/var/run/docker.sock:/var/run/docker.sock" \
-    docker_collector $@;
+    rcelha/docker-collector-agent $@;
