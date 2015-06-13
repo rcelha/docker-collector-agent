@@ -1,0 +1,7 @@
+#!/bin/sh
+
+docker run -it --rm \
+    -v "$PWD:/usr/src/app" \
+    -v "/var/run/docker.sock:/var/run/docker.sock" \
+    --entrypoint="/bin/bash" \
+    rcelha/docker-collector-agent  -i;

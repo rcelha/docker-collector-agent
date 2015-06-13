@@ -2,6 +2,7 @@
 #!coding=utf-8
 
 import click
+import os
 
 from docker_collector_agent import main_loop
 
@@ -12,7 +13,12 @@ def cli():
 
 
 @click.command()
-def run():
+@click.option("--server", "-s",
+              default=None,
+              help="Docker collector server address")
+def run(server):
+    if server is not None:
+        os.environ["DOCKER_COLL_SERVER"] = server
     main_loop()
 
 

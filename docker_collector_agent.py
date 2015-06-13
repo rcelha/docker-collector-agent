@@ -2,7 +2,10 @@
 #!coding=utf-8
 
 import os
+import errno
 import json
+import requests
+import warnings
 from pprint import pprint as pp
 
 from docker import Client
@@ -11,14 +14,25 @@ from docker import Client
 def get_docker_coll_server():
     val = os.getenv("DOCKER_COLL_SERVER")
     if not val:
-        val = "http://www.google.com"
+        raise EnvironmentError(errno.EINVAL, "value for DOCKER_COLL_SERVER not found")
     return val
 
 
 def send_data(data):
     url = get_docker_coll_server()
-    pp(data)
-    pp(url)
+    req = requests.put(url, params=json.dumps(data))
+    if not req.ok:
+        msg = ("Error while sending data "
+               "to %(url)s. \n"
+               "status code: '%(status_code)s' "
+               "message: '%(message)s' " 
+               "data sent: \n\t %(data)s "
+               "")
+        msg = msg % dict(url=url,
+                     status_code=req.status_code,
+                     message=req.reason,
+                     data=data)
+        warnings.warn(msg)
 
 
 def collect_data(docker_client, container_id):
@@ -39,8 +53,9 @@ def collect_data(docker_client, container_id):
 
 def main_loop():
     docker_client = Client()
-    containers = docker_client.containers()
 
-    for i in containers:
-        data = collect_data(docker_client, i[u'Id'])
-        send_data(data)
+    while True:
+        containers = docker_client.containers()
+        for i in containers:
+            data = collect_data(docker_client, i[u'Id'])
+            send_data(data)
