@@ -20,7 +20,7 @@ def get_docker_coll_server():
 
 def send_data(data):
     url = get_docker_coll_server()
-    req = requests.put(url, params=json.dumps(data))
+    req = requests.post(url, data=json.dumps(data))
     if not req.ok:
         msg = ("Error while sending data "
                "to %(url)s. \n"
