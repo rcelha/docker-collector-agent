@@ -35,10 +35,12 @@ def send_data(data):
         warnings.warn(msg)
 
 
-def collect_data(docker_client, container_id):
-    stats = {}
+def collect_data(docker_client, container):
+    data = {}
+    container_id = container[u'Id']
+    data['container'] = container
     for ii in docker_client.stats(container_id, True):
-        stats.update(ii)
+        data['stats'] = ii
         break
 
     top = docker_client.top(container_id)
@@ -48,8 +50,8 @@ def collect_data(docker_client, container_id):
         for k,v in enumerate(top[u'Titles']):
             tmp[v] = ii[k]
         result_top.append(tmp)
-    stats['top'] = result_top
-    return stats
+    data['top'] = result_top
+    return data
 
 def main_loop():
     docker_client = Client()
@@ -57,5 +59,5 @@ def main_loop():
     while True:
         containers = docker_client.containers()
         for i in containers:
-            data = collect_data(docker_client, i[u'Id'])
+            data = collect_data(docker_client, i)
             send_data(data)
