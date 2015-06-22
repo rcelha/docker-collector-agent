@@ -8,7 +8,7 @@ import requests
 import warnings
 from pprint import pprint as pp
 
-from docker import Client
+from docker import Client, errors
 
 
 def get_docker_coll_server():
@@ -59,5 +59,8 @@ def main_loop():
     while True:
         containers = docker_client.containers()
         for i in containers:
-            data = collect_data(docker_client, i)
-            send_data(data)
+            try:
+                data = collect_data(docker_client, i)
+                send_data(data)
+            except errors.APIError, e:
+                print e
